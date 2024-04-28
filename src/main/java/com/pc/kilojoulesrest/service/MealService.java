@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface MealService {
-    Meal save(Meal meal);
+    Meal saveMeal(Meal meal);
 
     Page<Meal> fetchMealsPaged(int page, User user);
 
@@ -28,18 +28,8 @@ public interface MealService {
 
     List<MealDTO> calculateAndReturnMealDtoList(List<Meal> meals);
 
-//    MealDTO calculateAndReturnMealDto(Long id);
-
     void sumUpMealFoods(MealDTO mealDTO, List<MealFoodDTO> mealFoodsDTO);
 
-    //    public MealDTO calculateAndReturnMealDto(Long id) {
-//        Meal meal = this.getMealById(id);
-//        return getMealDTO(meal);
-//    }
-    //    public MealDTO calculateAndReturnMealDto(Long id) {
-//        Meal meal = this.getMealById(id);
-//        return getMealDTO(meal);
-//    }
     MealDTO calculateAndReturnMealDto(Meal meal);
 
     List<MealFoodDTO> calculateAndReturnAdjustedMealFoods(Meal meal);

@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 @Value
 public class FoodCreateDto implements Serializable {
     @Size(max = 255)
-    @NotBlank
+    @NotBlank(message = "Name cannot be empty.")
     String name;
 //    @PositiveOrZero
     BigDecimal quantity;

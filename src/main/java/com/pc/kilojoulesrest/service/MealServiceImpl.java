@@ -43,7 +43,7 @@ public class MealServiceImpl implements MealService {
     }
 
     @Override
-    public Meal save(Meal meal) {
+    public Meal saveMeal(Meal meal) {
         return mealRepository.save(meal);
     }
 
@@ -57,6 +57,7 @@ public class MealServiceImpl implements MealService {
     public Meal getMealById(Long id) {
         return mealRepository.findById(id).orElseThrow(()-> new RecordNotFoundException("Meal record with id " + id + " does not exist!"));
     }
+
     @Override
     public Meal getMealByIdAndUser(Long id, User user) {
         Meal meal = mealRepository.findById(id).orElseThrow(()-> new RecordNotFoundException("Meal record with id " + id + " does not exist!"));
@@ -91,7 +92,7 @@ public class MealServiceImpl implements MealService {
                     mf.setQuantity(savedQuantity);
                     Food food = foodService.getFoodById(foodId);
                     mf.setFood(food);
-                    return mealFoodService.save(mf);
+                    return mealFoodService.saveMealFood(mf);
                 })
                 .collect(Collectors.toSet());
     }
@@ -130,16 +131,9 @@ public class MealServiceImpl implements MealService {
     @Override
     public List<MealDTO> calculateAndReturnMealDtoList(List<Meal> meals) {
         return meals.stream().map(this::calculateAndReturnMealDto).collect(Collectors.toList());
-    }
-    //    public MealDTO calculateAndReturnMealDto(Long id) {
-//        Meal meal = this.getMealById(id);
-//        return getMealDTO(meal);
-//    }
+        }
+
     @Override
-//    public MealDTO calculateAndReturnMealDto(Long id) {
-//        Meal meal = this.getMealById(id);
-//        return getMealDTO(meal);
-//    }
     public MealDTO calculateAndReturnMealDto(Meal meal) {
         MealDTO mealDTO = new MealDTO();
         mealDTO.setMealName(meal.getMealName());
@@ -152,23 +146,6 @@ public class MealServiceImpl implements MealService {
 
         return mealDTO;
     }
-//    @Override
-//    public MealDTO calculateAndReturnMealDto(Long id) {
-//        Meal meal = this.getMealById(id);
-//        return getMealDTO(meal);
-//    }
-//    private MealDTO getMealDTO(Meal meal) {
-//        MealDTO mealDTO = new MealDTO();
-//        mealDTO.setMealName(meal.getMealName());
-//        mealDTO.setMealId(meal.getId());
-//
-//        List<MealFoodDTO> mealFoodsDTO = this.calculateAndReturnAdjustedMealFoods(meal);
-//        mealDTO.setMealFoodsDTO(mealFoodsDTO);
-//
-//        this.sumUpMealFoods(mealDTO, mealFoodsDTO);
-//
-//        return mealDTO;
-//    }
 
     @Override
     public List<MealFoodDTO> calculateAndReturnAdjustedMealFoods(Meal meal) {

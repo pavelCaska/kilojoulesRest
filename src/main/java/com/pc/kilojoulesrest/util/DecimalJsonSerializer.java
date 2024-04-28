@@ -9,7 +9,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 public class DecimalJsonSerializer extends JsonSerializer<BigDecimal> {
-//    private static final BigDecimal ONE_HUNDRED = new BigDecimal("100");
 
     @Override
     public void serialize(BigDecimal value, JsonGenerator gen, SerializerProvider serializers) throws IOException {

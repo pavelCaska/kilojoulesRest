@@ -3,6 +3,8 @@ package com.pc.kilojoulesrest.repository;
 import com.pc.kilojoulesrest.entity.Food;
 import com.pc.kilojoulesrest.entity.Portion;
 import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +25,34 @@ class FoodRepositoryTests {
     @Autowired
     private FoodRepository foodRepository;
 
+    private Food apple;
+
+    @BeforeEach
+    void setUp() {
+        apple = Food.builder()
+                .name("Apple")
+                .kiloJoules(BigDecimal.TEN)
+                .proteins(BigDecimal.TEN)
+                .carbohydrates(BigDecimal.TEN)
+                .fat(BigDecimal.TEN)
+                .build();
+
+        Portion portion = Portion.builder()
+                .portionName("1 g")
+                .portionSize(BigDecimal.ONE)
+                .food(apple)
+                .build();
+
+        List<Portion> portions = new ArrayList<>();
+        portions.add(portion);
+
+        apple.setPortions(portions);
+        foodRepository.save(apple);
+    }
+
     @Test
     @DisplayName("JUnit test save food operation")
-    public void givenFoodObject_whenSave_thenReturnSavedFood() {
+    void givenFoodObject_whenSave_thenReturnSavedFood() {
 
         Food food = Food.builder()
                 .name("Apple")
@@ -43,8 +70,8 @@ class FoodRepositoryTests {
 
         List<Portion> portions = new ArrayList<>();
         portions.add(portion);
-
         food.setPortions(portions);
+
         Food savedFood = foodRepository.save(food);
 
         assertThat(savedFood).isNotNull();
@@ -70,27 +97,7 @@ class FoodRepositoryTests {
 
     @Test
     @DisplayName("JUnit test for findAll operation")
-    public void givenFoodList_whenFindAll_thenReturnListOfFoods() {
-
-        Food apple = Food.builder()
-                .name("Apple")
-                .kiloJoules(BigDecimal.TEN)
-                .proteins(BigDecimal.TEN)
-                .carbohydrates(BigDecimal.TEN)
-                .fat(BigDecimal.TEN)
-                .build();
-
-        Portion portion = Portion.builder()
-                .portionName("1 g")
-                .portionSize(BigDecimal.ONE)
-                .food(apple)
-                .build();
-
-        List<Portion> portions = new ArrayList<>();
-        portions.add(portion);
-
-        apple.setPortions(portions);
-        foodRepository.save(apple);
+    void givenFoodList_whenFindAll_thenReturnListOfFoods() {
 
         Food mango = Food.builder()
                 .name("Mango")
@@ -121,58 +128,19 @@ class FoodRepositoryTests {
 
     @Test
     @DisplayName("JUnit test for findById operation")
-    public void givenFoodObject_whenFindById_thenReturnFood() {
+    void givenFoodObject_whenFindById_thenReturnFood() {
+        Long foodId = apple.getId();
 
-        Food apple = Food.builder()
-                .name("Apple")
-                .kiloJoules(BigDecimal.TEN)
-                .proteins(BigDecimal.TEN)
-                .carbohydrates(BigDecimal.TEN)
-                .fat(BigDecimal.TEN)
-                .build();
-
-        Portion portion = Portion.builder()
-                .portionName("1 g")
-                .portionSize(BigDecimal.ONE)
-                .food(apple)
-                .build();
-
-        List<Portion> portions = new ArrayList<>();
-        portions.add(portion);
-
-        apple.setPortions(portions);
-        foodRepository.save(apple);
-
-        Optional<Food> optionalFood = foodRepository.findById(apple.getId());
+        Optional<Food> optionalFood = foodRepository.findById(foodId);
 
         assertThat(optionalFood).isPresent();
-        assertThat(optionalFood.get().getId()).isEqualTo(apple.getId());
+        assertThat(optionalFood.get().getId()).isEqualTo(foodId);
         assertThat(optionalFood.get().getPortions()).isEqualTo(apple.getPortions());
     }
 
     @Test
     @DisplayName("JUnit test for delete operation")
-    public void givenFoodObject_whenDelete_thenRemoveFood() {
-
-        Food apple = Food.builder()
-                .name("Apple")
-                .kiloJoules(BigDecimal.TEN)
-                .proteins(BigDecimal.TEN)
-                .carbohydrates(BigDecimal.TEN)
-                .fat(BigDecimal.TEN)
-                .build();
-
-        Portion portion = Portion.builder()
-                .portionName("1 g")
-                .portionSize(BigDecimal.ONE)
-                .food(apple)
-                .build();
-
-        List<Portion> portions = new ArrayList<>();
-        portions.add(portion);
-
-        apple.setPortions(portions);
-        foodRepository.save(apple);
+    void givenFoodObject_whenDelete_thenRemoveFood() {
 
         foodRepository.delete(apple);
 
@@ -181,27 +149,7 @@ class FoodRepositoryTests {
 
     @Test
     @DisplayName("JUnit test for findAllByNameContains")
-    public void givenString_whenFindAllByName_thenReturnPage() {
-        Food apple = Food.builder()
-                .name("Apple")
-                .kiloJoules(BigDecimal.TEN)
-                .proteins(BigDecimal.TEN)
-                .carbohydrates(BigDecimal.TEN)
-                .fat(BigDecimal.TEN)
-                .build();
-
-        Portion portion = Portion.builder()
-                .portionName("1 g")
-                .portionSize(BigDecimal.ONE)
-                .food(apple)
-                .build();
-
-        List<Portion> portions = new ArrayList<>();
-        portions.add(portion);
-
-        apple.setPortions(portions);
-        foodRepository.save(apple);
-
+    void givenString_whenFindAllByName_thenReturnPage() {
         Food mango = Food.builder()
                 .name("Mango")
                 .kiloJoules(BigDecimal.TEN)

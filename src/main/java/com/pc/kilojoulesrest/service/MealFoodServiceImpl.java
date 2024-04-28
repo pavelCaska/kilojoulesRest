@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 public class MealFoodServiceImpl implements MealFoodService {
@@ -25,7 +26,7 @@ public class MealFoodServiceImpl implements MealFoodService {
     }
 
     @Override
-    public MealFood save(MealFood mealFood) {
+    public MealFood saveMealFood(MealFood mealFood) {
         return mealFoodRepository.save(mealFood);
     }
 
@@ -49,7 +50,7 @@ public class MealFoodServiceImpl implements MealFoodService {
             throw new IllegalArgumentException("User does not have permission to modify this meal!");
         }
         meal.getMealFoods().remove(mf);
-        mealService.save(meal);
+        mealService.saveMeal(meal);
         mealFoodRepository.delete(mf);
         return mf;
     }
@@ -77,7 +78,14 @@ public class MealFoodServiceImpl implements MealFoodService {
         meal.getMealFoods().add(mf);
 
         mealFoodRepository.save(mf);
-        mealService.save(meal);
+        mealService.saveMeal(meal);
         return mf;
     }
+
+    @Override
+    public boolean isFoodAssociatedToMealFood(Long foodId) {
+        List<MealFood> mealFoodList = mealFoodRepository.findMealFoodByFoodId (foodId);
+        return !mealFoodList.isEmpty();
+    }
+
 }

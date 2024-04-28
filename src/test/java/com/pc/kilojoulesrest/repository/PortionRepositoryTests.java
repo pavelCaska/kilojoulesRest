@@ -3,6 +3,8 @@ package com.pc.kilojoulesrest.repository;
 import com.pc.kilojoulesrest.entity.Food;
 import com.pc.kilojoulesrest.entity.Portion;
 import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +24,12 @@ class PortionRepositoryTests {
     @Autowired
     private FoodRepository foodRepository;
 
-    @Test
-    @DisplayName("JUnit test for save operation")
-    public void givenPortionObject_whenSave_thenReturnSavedObject() {
+    private Food food;
+    private Portion portion;
 
-        Food food = Food.builder()
+    @BeforeEach
+    void setUp() {
+        food = Food.builder()
                 .name("Apple")
                 .kiloJoules(BigDecimal.TEN)
                 .proteins(BigDecimal.TEN)
@@ -35,13 +38,25 @@ class PortionRepositoryTests {
                 .build();
         foodRepository.save(food);
 
-        Portion portion = Portion.builder()
+        portion = Portion.builder()
+                .portionName("1 g")
+                .portionSize(BigDecimal.ONE)
+                .food(food)
+                .build();
+        portionRepository.save(portion);
+    }
+
+    @Test
+    @DisplayName("JUnit test for save operation")
+    void givenPortionObject_whenSave_thenReturnSavedObject() {
+
+        Portion testPortion = Portion.builder()
                 .portionName("1 g")
                 .portionSize(BigDecimal.ONE)
                 .food(food)
                 .build();
 
-        Portion savedPortion = portionRepository.save(portion);
+        Portion savedPortion = portionRepository.save(testPortion);
 
         assertThat(savedPortion).isNotNull();
         assertThat(savedPortion.getId()).isGreaterThan(0);
@@ -52,51 +67,19 @@ class PortionRepositoryTests {
 
     @Test
     @DisplayName("JUnit test for findById operation")
-    public void givenPortionObject_whenFindById_thenReturnPortionObject() {
+    void givenPortionObject_whenFindById_thenReturnPortionObject() {
 
-        Food food = Food.builder()
-                .name("Apple")
-                .kiloJoules(BigDecimal.TEN)
-                .proteins(BigDecimal.TEN)
-                .carbohydrates(BigDecimal.TEN)
-                .fat(BigDecimal.TEN)
-                .build();
-        foodRepository.save(food);
+        Long portionId = portion.getId();
 
-        Portion portion = Portion.builder()
-                .portionName("1 g")
-                .portionSize(BigDecimal.ONE)
-                .food(food)
-                .build();
-
-        Portion savedPortion = portionRepository.save(portion);
-
-        Optional<Portion> foundPortion = portionRepository.findById(savedPortion.getId());
+        Optional<Portion> foundPortion = portionRepository.findById(portionId);
 
         assertThat(foundPortion).isPresent();
-        assertThat(foundPortion.get()).isEqualTo(savedPortion);
+        assertThat(foundPortion.get()).isEqualTo(portion);
     }
 
     @Test
     @DisplayName("JUnit test for delete operation")
-    public void givenPortionObject_whenDelete_thenRemovePortionObject() {
-        Food food = Food.builder()
-
-                .name("Apple")
-                .kiloJoules(BigDecimal.TEN)
-                .proteins(BigDecimal.TEN)
-                .carbohydrates(BigDecimal.TEN)
-                .fat(BigDecimal.TEN)
-                .build();
-        foodRepository.save(food);
-
-        Portion portion = Portion.builder()
-                .portionName("1 g")
-                .portionSize(BigDecimal.ONE)
-                .food(food)
-                .build();
-
-        portionRepository.save(portion);
+    void givenPortionObject_whenDelete_thenRemovePortionObject() {
 
         portionRepository.delete(portion);
 
@@ -105,7 +88,7 @@ class PortionRepositoryTests {
 
     @Test
     @DisplayName("JUnit test for countPortionByFood")
-    public void givenPortionList_whenCountPortionByFood_thenReturnCount() {
+    void givenPortionList_whenCountPortionByFood_thenReturnCount() {
 
         Food food = Food.builder()
                 .name("Apple")
@@ -150,42 +133,43 @@ class PortionRepositoryTests {
 
     @Test
     @DisplayName("JUnit test for findPortionByIdAndFoodId")
-    public void givenPortionAndFoodObjects_whenFind_thenReturnPortionObject() {
-        // given - precondition or setup
-        Food food = Food.builder()
+    void givenPortionAndFoodObjects_whenFind_thenReturnPortionObject() {
+        Food apple = Food.builder()
                 .name("Apple")
                 .kiloJoules(BigDecimal.TEN)
                 .proteins(BigDecimal.TEN)
                 .carbohydrates(BigDecimal.TEN)
                 .fat(BigDecimal.TEN)
                 .build();
-        foodRepository.save(food);
+        foodRepository.save(apple);
 
-        Portion portion = Portion.builder()
+        Portion portion1 = Portion.builder()
                 .portionName("1 g")
                 .portionSize(BigDecimal.ONE)
-                .food(food)
+                .food(apple)
                 .build();
-        portionRepository.save(portion);
+        portionRepository.save(portion1);
 
         Portion portion2 = Portion.builder()
                 .portionName("2 g")
                 .portionSize(BigDecimal.valueOf(2))
-                .food(food)
+                .food(apple)
                 .build();
         portionRepository.save(portion2);
 
         List<Portion> portions = new ArrayList<>();
-        portions.add(portion);
+        portions.add(portion1);
         portions.add(portion2);
 
-        food.setPortions(portions);
-        foodRepository.save(food);
+        apple.setPortions(portions);
+        foodRepository.save(apple);
 
-        Optional<Portion> foundPortion = portionRepository.findPortionByIdAndFoodId(portion.getId(), food.getId());
+        Long portionId = portion1.getId();
+        Long foodId = apple.getId();
+
+        Optional<Portion> foundPortion = portionRepository.findPortionByIdAndFoodId(portionId, foodId);
 
         assertThat(foundPortion).isPresent();
-        assertThat(foundPortion.get()).isEqualTo(portion);
-
+        assertThat(foundPortion.get()).isEqualTo(portion1);
     }
 }

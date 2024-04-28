@@ -7,8 +7,8 @@ import com.pc.kilojoulesrest.exception.RecordNameExistsException;
 import com.pc.kilojoulesrest.exception.RecordNotDeletableException;
 import com.pc.kilojoulesrest.exception.RecordNotFoundException;
 import com.pc.kilojoulesrest.model.PortionRequestDTO;
+import com.pc.kilojoulesrest.model.PortionResponseDTO;
 import com.pc.kilojoulesrest.repository.PortionRepository;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
@@ -17,6 +17,7 @@ import org.springframework.validation.FieldError;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class PortionServiceImpl implements PortionService {
@@ -30,25 +31,31 @@ public class PortionServiceImpl implements PortionService {
         this.foodService = foodService;
     }
 
+//    This method is used only in integration tests
+    @Override
+    public void savePortion(Portion portion) {
+        portionRepository.save(portion);
+    }
+
+//    This method is used only in integration tests
+    @Override
+    public Optional<Portion> fetchPortionById(Long portionId) {
+        return portionRepository.findById(portionId);
+    }
 
     @Override
-    public Portion createPortion(Food food, Portion portion) throws RecordNameExistsException {
+    public Portion addPortionToList(Food food, Portion portion) throws RecordNameExistsException {
         List<Portion> portionList = food.getPortions();
         for (Portion item : portionList) {
             if(item.getPortionName().equals(portion.getPortionName())) {
                 throw new RecordNameExistsException("Portion name already exists for this food.");
             }
         }
-        Portion newPortion = Portion.builder()
-                .portionName(portion.getPortionName())
-                .portionSize(portion.getPortionSize())
-                .food(food)
-                .build();
-        portionRepository.save(newPortion);
-        portionList.add(newPortion);
+        portionRepository.save(portion);
+        portionList.add(portion);
         food.setPortions(portionList);
         foodService.saveFood(food);
-        return newPortion;
+        return portion;
     }
 
     @Override
@@ -100,5 +107,10 @@ public class PortionServiceImpl implements PortionService {
     public boolean existsPortionByIdAndFoodId(Long portionId, Long foodId) {
         return portionRepository.findPortionByIdAndFoodId(portionId, foodId).isPresent();
     }
-
+    @Override
+    public List<PortionResponseDTO> convertFoodToPortionResponseDtoList(Food food) {
+        return food.getPortions().stream()
+                .map(PortionResponseDTO::fromEntity)
+                .toList();
+    }
 }

@@ -28,15 +28,12 @@ public interface FoodService {
 
     void saveFood(Food food);
 
-//    Food updateFood(Food food);
-
     Food updateFood(FoodDto foodDto);
 
     Food addPortionsToFood(Food food);
 
     Food deleteFoodById(Long id);
 
-//    List<Food> searchFood(String query);
     Page<Food> searchFood(String query, Pageable pageable);
 
 }

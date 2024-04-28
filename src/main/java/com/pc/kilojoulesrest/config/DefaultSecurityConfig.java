@@ -40,18 +40,11 @@ public class DefaultSecurityConfig {
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.authorizeHttpRequests((requests) -> requests
                         .requestMatchers(mvcMatcherBuilder.pattern("/api/login")).permitAll()
-                        .requestMatchers(mvcMatcherBuilder.pattern("/api/isRunning")).hasRole("USER")
+                        .requestMatchers(mvcMatcherBuilder.pattern("/api/isRunning")).hasRole("ADMIN")
                         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,"/food/{foodId}/portion")).hasAnyRole("USER", "ADMIN")
                         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST,"/food/{foodId}/portion")).hasAnyRole("USER", "ADMIN")
-//                        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST,"/api/item")).hasRole("USER")
-//                        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,"/api/item")).hasAnyRole("USER", "ADMIN")
-//                        .requestMatchers(mvcMatcherBuilder.pattern("/api/bid/{itemId}")).hasRole("USER")
-//                        .requestMatchers(mvcMatcherBuilder.pattern("/api/user")).hasRole("ADMIN")
-//                        .requestMatchers(mvcMatcherBuilder.pattern("/api/balance")).hasRole("ADMIN")
-//                        .requestMatchers(mvcMatcherBuilder.pattern("/api/purchase/{id}/delete")).hasRole("ADMIN")
                         .requestMatchers(mvcMatcherBuilder.pattern("/error")).permitAll() // Shouldn't be used with respect for frontend!
                         .anyRequest().authenticated())
-//                        .anyRequest().permitAll())
                 .csrf((csrf) -> csrf.disable());
         http.authenticationProvider(authenticationProvider())
                 .addFilterBefore( jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

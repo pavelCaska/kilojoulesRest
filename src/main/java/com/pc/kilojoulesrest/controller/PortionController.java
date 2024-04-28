@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -23,13 +24,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
-public class RestPortionController {
+public class PortionController {
 
     private final PortionService portionService;
     private final FoodService foodService;
-    private static final Logger log = LoggerFactory.getLogger(RestPortionController.class);
+    private static final Logger log = LoggerFactory.getLogger(PortionController.class);
 
-    public RestPortionController(PortionService portionService, FoodService foodService) {
+    public PortionController(PortionService portionService, FoodService foodService) {
         this.portionService = portionService;
         this.foodService = foodService;
     }
@@ -37,9 +38,7 @@ public class RestPortionController {
     public ResponseEntity<?> fetchPortionsByFoodId(@PathVariable Long foodId) {
         try {
             Food food = foodService.getFoodById(foodId);
-            List<PortionResponseDTO> portionResponseDTOList = food.getPortions().stream()
-                    .map(o -> new PortionResponseDTO(o.getId(), o.getFood().getId(), o.getPortionName(), o.getPortionSize()))
-                    .toList();
+            List<PortionResponseDTO> portionResponseDTOList = portionService.convertFoodToPortionResponseDtoList(food);
             return ResponseEntity.ok(portionResponseDTOList);
         } catch (RecordNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDTO(e.getMessage()));
@@ -58,7 +57,9 @@ public class RestPortionController {
         try {
             Food food = foodService.getFoodById(foodId);
             Portion portion = portionService.createPortionRest(food, portionRequestDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body(new PortionResponseDTO(portion.getId(), portion.getFood().getId(), portion.getPortionName(), portion.getPortionSize()));
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Location", "/api/food/" + foodId + "/portion/" + portion.getId());
+            return ResponseEntity.status(HttpStatus.CREATED).headers(headers).body(PortionResponseDTO.fromEntity(portion));
         } catch (RecordCountException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorDTO(e.getMessage()));
         } catch (RecordNotFoundException e) {
@@ -69,7 +70,7 @@ public class RestPortionController {
         }
     }
 
-    @DeleteMapping("/food/{foodId}/portion/{portionId}/delete")
+    @DeleteMapping("/food/{foodId}/portion/{portionId}")
     public ResponseEntity<?> deletePortionById(@PathVariable Long foodId, @PathVariable Long portionId) {
         if(!portionService.existsPortionByIdAndFoodId(portionId, foodId)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDTO("Food record with id " + foodId + " is not associated with Portion record with id " + portionId));

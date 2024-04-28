@@ -2,12 +2,14 @@ package com.pc.kilojoulesrest.service;
 
 import com.pc.kilojoulesrest.entity.Food;
 import com.pc.kilojoulesrest.entity.Portion;
+import com.pc.kilojoulesrest.exception.RecordNotDeletableException;
 import com.pc.kilojoulesrest.exception.RecordNotFoundException;
 import com.pc.kilojoulesrest.model.FoodCreateDto;
 import com.pc.kilojoulesrest.model.FoodDto;
 import com.pc.kilojoulesrest.repository.FoodRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,10 +30,12 @@ import static com.pc.kilojoulesrest.constant.Constant.ONE_HUNDRED;
 @Service
 public class FoodServiceImpl implements FoodService {
     private final FoodRepository foodRepository;
+    private final MealFoodService mealFoodService;
 
     @Autowired
-    public FoodServiceImpl(FoodRepository foodRepository) {
+    public FoodServiceImpl(FoodRepository foodRepository, @Lazy MealFoodService mealFoodService) {
         this.foodRepository = foodRepository;
+        this.mealFoodService = mealFoodService;
     }
 
     @Override
@@ -64,7 +68,7 @@ public class FoodServiceImpl implements FoodService {
     public Food createFoodFromDto(FoodCreateDto dto) {
         Food.FoodBuilder builder = Food.builder()
                 .name(dto.getName())
-                .quantity(new BigDecimal("100.00"))
+                .quantity(ONE_HUNDRED)
                 .kiloJoules(dto.getKiloJoules())
                 .proteins(dto.getProteins())
                 .carbohydrates(dto.getCarbohydrates())
@@ -98,26 +102,6 @@ public class FoodServiceImpl implements FoodService {
         Food food = builder.build();
         return foodRepository.save(food);
     }
-//    @Override
-//    public Food createFoodFromDto(FoodCreateDto dto) {
-//        Food food = Food.builder()
-//                .name(dto.getName())
-//                .kiloJoules(dto.getKiloJoules())
-//                .proteins(dto.getProteins())
-//                .carbohydrates(dto.getCarbohydrates())
-//                .fat(dto.getFat())
-//                .fiber(dto.getFiber())
-//                .quantity(dto.getQuantity())
-//                .sugar(dto.getSugar())
-//                .safa(dto.getSafa())
-//                .tfa(dto.getTfa())
-//                .cholesterol(dto.getCholesterol())
-//                .sodium(dto.getSodium())
-//                .calcium(dto.getCalcium())
-//                .phe(dto.getPhe())
-//                .build();
-//        return foodRepository.save(food);
-//    }
 
     @Override
     public Map<String, String> buildErrorResponseForFood(BindingResult bindingResult) {
@@ -137,26 +121,19 @@ public class FoodServiceImpl implements FoodService {
     @Override
     public Food updateFood(FoodDto foodDto) {
         Food existingFood = foodRepository.findById(foodDto.getId()).orElseThrow(() -> new RecordNotFoundException("Food record with id " + foodDto.getId() + " does not exist!"));
-        BeanUtils.copyProperties(foodDto, existingFood, new String[] {"id", "portions"});
+        BeanUtils.copyProperties(foodDto, existingFood, new String[] {"id", "quantity", "createdAt", "updatedAt", "portions"});
         return foodRepository.save(existingFood);
     }
-//    @Override
-//    public Food updateFood(Food food) {
-//        Food existingFood = foodRepository.findById(food.getId()).orElseThrow(() -> new RecordNotFoundException("Food record with id " + food.getId() + " does not exist!"));
-//        BeanUtils.copyProperties(food, existingFood, new String[] {"id", "portions"});
-//        return foodRepository.save(existingFood);
-//    }
 
     @Override
     @Transactional
     public Food addPortionsToFood(Food food) {
-//        Food savedFood = foodRepository.save(food);
 
         List<Portion> portions = new ArrayList<>();
-        Portion portion100 = new Portion("100 g", ONE_HUNDRED, food);
         Portion portion1 = new Portion("1 g", BigDecimal.ONE, food);
-        portions.add(portion100);
+        Portion portion100 = new Portion("100 g", ONE_HUNDRED, food);
         portions.add(portion1);
+        portions.add(portion100);
         food.setPortions(portions);
         return foodRepository.save(food);
     }
@@ -164,6 +141,9 @@ public class FoodServiceImpl implements FoodService {
     @Override
     @Transactional
     public Food deleteFoodById(Long id) {
+        if(mealFoodService.isFoodAssociatedToMealFood(id)) {
+            throw new RecordNotDeletableException("Food with id: " + id + " is associated to a meal and cannot be deleted.");
+        }
         Food food = foodRepository.findById(id).orElseThrow(() -> new RecordNotFoundException("Food record with id " + id + " does not exist!"));
         foodRepository.delete(food);
         return food;
@@ -173,8 +153,4 @@ public class FoodServiceImpl implements FoodService {
     public Page<Food> searchFood(String query, Pageable pageable) {
         return foodRepository.findAllByNameContainsIgnoreCase(query, pageable);
     }
-//    @Override
-//    public List<Food> searchFood(String query) {
-//        return foodRepository.findAllByNameContainsIgnoreCase(query);
-//    }
 }

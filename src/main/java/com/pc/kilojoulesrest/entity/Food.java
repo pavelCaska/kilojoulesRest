@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static com.pc.kilojoulesrest.constant.Constant.ONE_HUNDRED;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -33,7 +35,8 @@ public class Food {
     @Builder.Default
     @NotNull
     @DecimalMin(value = "0.0", message = "Quantity must be greater than or equal to zero")
-    private BigDecimal quantity = new BigDecimal("100"); // denominator or divisor
+//    private BigDecimal quantity = new BigDecimal("100.00"); // denominator or divisor
+    private BigDecimal quantity = ONE_HUNDRED; // denominator or divisor
 
     @NotNull
     @DecimalMin(value = "0.0", message = "KiloJoules must be greater than or equal to zero")
@@ -104,4 +107,16 @@ public class Food {
 //    @OneToMany(mappedBy="food", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @OneToMany(mappedBy="food", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Portion> portions = new ArrayList<>();
+
+    @Override
+    public String toString() {
+        return "Food{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", quantity=" + quantity +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", portions=" + portions +
+                '}';
+    }
 }

@@ -18,14 +18,14 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
-public class RestUserController {
+public class UserController {
 
     private final UserService userService;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
 
-    public RestUserController(UserService userService, JwtService jwtService, AuthenticationManager authenticationManager) {
+    public UserController(UserService userService, JwtService jwtService, AuthenticationManager authenticationManager) {
         this.userService = userService;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
@@ -62,7 +62,7 @@ public class RestUserController {
 
     @GetMapping("/isRunning")
     public String isRunning() {
-        return "Service is running";
+        return "Service is running.";
     }
 
 }

@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class MealFormDTO {
 
-    @NotBlank
+    @NotBlank(message = "Name cannot be empty.")
     private String mealName;
 
     @NotNull

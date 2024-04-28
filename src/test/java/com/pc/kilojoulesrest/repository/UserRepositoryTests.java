@@ -59,5 +59,6 @@ class UserRepositoryTests {
 
         assertThat(foundUser).isPresent();
         assertThat(foundUser.get().getUsername()).isEqualTo("testUser1");
+        assertThat(foundUser.get()).isEqualTo(user1);
     }
 }

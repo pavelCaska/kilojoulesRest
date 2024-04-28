@@ -7,7 +7,7 @@ import jakarta.transaction.Transactional;
 
 public interface MealFoodService {
 
-    MealFood save(MealFood mealFood);
+    MealFood saveMealFood(MealFood mealFood);
 
     void deleteMealFood(MealFood mealFood);
 
@@ -18,8 +18,8 @@ public interface MealFoodService {
 
     boolean existsMealFoodByMealIdAndId(Long mealId, Long foodId);
 
-//    MealFood updateMealFood(Long mealId, Long foodId, MealFormDTO mealFormDTO);
-
     @Transactional
     MealFood updateMealFood(Long mealFoodId, MealFormDTO mealFormDTO, User user);
+
+    boolean isFoodAssociatedToMealFood(Long foodId);
 }

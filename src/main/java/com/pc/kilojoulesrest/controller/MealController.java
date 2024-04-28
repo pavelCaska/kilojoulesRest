@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,20 +24,18 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
-public class RestMealController {
+public class MealController {
 
     private final MealService mealService;
     private final UserService userService;
     private final MealFoodService mealFoodService;
-    private static final Logger log = LoggerFactory.getLogger(RestFoodController.class);
+    private static final Logger log = LoggerFactory.getLogger(FoodController.class);
 
-    public RestMealController(MealService mealService, UserService userService, MealFoodService mealFoodService) {
+    public MealController(MealService mealService, UserService userService, MealFoodService mealFoodService) {
         this.mealService = mealService;
         this.userService = userService;
         this.mealFoodService = mealFoodService;
@@ -103,8 +102,9 @@ public class RestMealController {
             User user = userService.fetchUserByUsername(userDetails.getUsername());
             Meal meal = mealService.createMeal(user, mealFormDTO, foods);
             MealDTO mealDTO = mealService.calculateAndReturnMealDto(meal);
-//            MealDTO mealDTO = mealService.calculateAndReturnMealDto(meal.getId());
-            return ResponseEntity.ok(mealDTO);
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Location", "/api/meal/" + meal.getId().toString());
+            return ResponseEntity.status(HttpStatus.OK).headers(headers).body(mealDTO);
         } catch (RecordNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDTO(e.getMessage()));
         } catch (IllegalArgumentException e) {
@@ -128,7 +128,6 @@ public class RestMealController {
             User user = userService.fetchUserByUsername(userDetails.getUsername());
             Meal meal = mealService.addFoodToMeal(user, id, mealFormDTO, foods);
             MealDTO mealDTO = mealService.calculateAndReturnMealDto(meal);
-//            MealDTO mealDTO = mealService.calculateAndReturnMealDto(meal.getId());
             return ResponseEntity.ok(mealDTO);
         } catch (RecordNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDTO(e.getMessage()));
@@ -148,7 +147,6 @@ public class RestMealController {
             User user = userService.fetchUserByUsername(userDetails.getUsername());
             Meal meal = mealService.updateMealName(id, mealName, user);
             MealDTO mealDTO = mealService.calculateAndReturnMealDto(meal);
-//            MealDTO mealDTO = mealService.calculateAndReturnMealDto(meal.getId());
             return ResponseEntity.ok(mealDTO);
         } catch (RecordNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDTO(e.getMessage()));
@@ -204,10 +202,10 @@ public class RestMealController {
     }
 
     @PutMapping("/meal/{mealId}/food/{mealFoodId}")
-    public ResponseEntity<?> editMealFood(@PathVariable Long mealId,
-                                          @PathVariable Long mealFoodId,
-                                          @Valid @RequestBody MealFormDTO mealFormDTO, BindingResult bindingResult,
-                                          @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<?> updateMealFood(@PathVariable Long mealId,
+                                            @PathVariable Long mealFoodId,
+                                            @Valid @RequestBody MealFormDTO mealFormDTO, BindingResult bindingResult,
+                                            @AuthenticationPrincipal UserDetails userDetails) {
         if (!mealFoodService.existsMealFoodByMealIdAndId(mealId, mealFoodId)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDTO("Food record with id " + mealFoodId + " is not associated with Meal record with id " + mealId));
         }

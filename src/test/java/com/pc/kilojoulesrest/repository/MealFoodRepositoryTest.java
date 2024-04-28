@@ -2,6 +2,8 @@ package com.pc.kilojoulesrest.repository;
 
 import com.pc.kilojoulesrest.entity.*;
 import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,10 +37,13 @@ class MealFoodRepositoryTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Test
-    @DisplayName("JUnit test for save operation")
-    public void givenMealFood_whenSave_thenReturnSavedObject() {
-        Food food = Food.builder()
+    private Food food;
+    private Meal meal;
+    private MealFood mealFood;
+
+    @BeforeEach
+    void setUp() {
+        food = Food.builder()
                 .name("Apple")
                 .kiloJoules(BigDecimal.TEN)
                 .proteins(BigDecimal.TEN)
@@ -65,7 +70,7 @@ class MealFoodRepositoryTest {
                 .build();
         userRepository.save(user);
 
-        Meal meal = Meal.builder()
+        meal = Meal.builder()
                 .mealName("Good meal")
                 .createdAt(new Date())
                 .updatedAt(new Date())
@@ -74,69 +79,40 @@ class MealFoodRepositoryTest {
 
         mealRepository.save(meal);
 
-        MealFood mealFood = MealFood.builder()
+        mealFood = MealFood.builder()
                 .food(food)
                 .meal(meal)
                 .quantity(BigDecimal.TEN)
                 .build();
+        mealFoodRepository.save(mealFood);
+    }
 
-        MealFood savedMealFood = mealFoodRepository.save(mealFood);
+    @Test
+    @DisplayName("JUnit test for save operation")
+    void givenMealFood_whenSave_thenReturnSavedObject() {
+
+        MealFood testMealFood = MealFood.builder()
+                .food(food)
+                .meal(meal)
+                .quantity(BigDecimal.ONE)
+                .build();
+
+        MealFood savedMealFood = mealFoodRepository.save(testMealFood);
 
         assertThat(savedMealFood).isNotNull();
         assertThat(savedMealFood.getId()).isNotNull();
         assertThat(savedMealFood.getFood()).isEqualTo(food);
         assertThat(savedMealFood.getMeal()).isEqualTo(meal);
-        assertThat(savedMealFood.getQuantity()).isEqualTo(BigDecimal.TEN);
+        assertThat(savedMealFood.getQuantity()).isEqualTo(BigDecimal.ONE);
     }
 
     @Test
     @DisplayName("JUnit test for findById operation")
-    public void givenMealFoodSaved_whenFindById_thenMealFoodIsReturned() {
-        Food food = Food.builder()
-                .name("Apple")
-                .kiloJoules(BigDecimal.TEN)
-                .proteins(BigDecimal.TEN)
-                .carbohydrates(BigDecimal.TEN)
-                .fat(BigDecimal.TEN)
-                .build();
+    void givenMealFoodSaved_whenFindById_thenMealFoodIsReturned() {
 
-        Portion portion = Portion.builder()
-                .portionName("1 g")
-                .portionSize(BigDecimal.ONE)
-                .food(food)
-                .build();
+        Long mealFoodId = mealFood.getId();
 
-        List<Portion> portions = new ArrayList<>();
-        portions.add(portion);
-
-        food.setPortions(portions);
-        foodRepository.save(food);
-
-        User user = User.builder()
-                .username("testUser")
-                .password(passwordEncoder.encode("testPassword"))
-                .roles("ROLE_USER")
-                .build();
-        userRepository.save(user);
-
-        Meal meal = Meal.builder()
-                .mealName("Good meal")
-                .createdAt(new Date())
-                .updatedAt(new Date())
-                .user(user)
-                .build();
-
-        mealRepository.save(meal);
-
-        MealFood mealFood = MealFood.builder()
-                .food(food)
-                .meal(meal)
-                .quantity(BigDecimal.TEN)
-                .build();
-
-        mealFoodRepository.save(mealFood);
-
-        Optional<MealFood> optionalMealFood = mealFoodRepository.findById(mealFood.getId());
+        Optional<MealFood> optionalMealFood = mealFoodRepository.findById(mealFoodId);
 
         assertThat(optionalMealFood).isPresent();
         assertThat(optionalMealFood.get()).isEqualTo(mealFood);
@@ -144,50 +120,7 @@ class MealFoodRepositoryTest {
 
     @Test
     @DisplayName("JUnit test for delete operation")
-    public void givenMealFood_whenDelete_thenRemoveMealFood() {
-        Food food = Food.builder()
-                .name("Apple")
-                .kiloJoules(BigDecimal.TEN)
-                .proteins(BigDecimal.TEN)
-                .carbohydrates(BigDecimal.TEN)
-                .fat(BigDecimal.TEN)
-                .build();
-
-        Portion portion = Portion.builder()
-                .portionName("1 g")
-                .portionSize(BigDecimal.ONE)
-                .food(food)
-                .build();
-
-        List<Portion> portions = new ArrayList<>();
-        portions.add(portion);
-
-        food.setPortions(portions);
-        foodRepository.save(food);
-
-        User user = User.builder()
-                .username("testUser")
-                .password(passwordEncoder.encode("testPassword"))
-                .roles("ROLE_USER")
-                .build();
-        userRepository.save(user);
-
-        Meal meal = Meal.builder()
-                .mealName("Good meal")
-                .createdAt(new Date())
-                .updatedAt(new Date())
-                .user(user)
-                .build();
-
-        mealRepository.save(meal);
-
-        MealFood mealFood = MealFood.builder()
-                .food(food)
-                .meal(meal)
-                .quantity(BigDecimal.TEN)
-                .build();
-
-        mealFoodRepository.save(mealFood);
+    void givenMealFood_whenDelete_thenRemoveMealFood() {
 
         mealFoodRepository.delete(mealFood);
         Optional<MealFood> deletedMealFood = mealFoodRepository.findById(mealFood.getId());
@@ -197,53 +130,12 @@ class MealFoodRepositoryTest {
 
     @Test
     @DisplayName("JUnit test for findMealFoodByMealIdAndId operation")
-    public void given_when_then() {
-        // given - precondition or setup
-        Food food = Food.builder()
-                .name("Apple")
-                .kiloJoules(BigDecimal.TEN)
-                .proteins(BigDecimal.TEN)
-                .carbohydrates(BigDecimal.TEN)
-                .fat(BigDecimal.TEN)
-                .build();
+    void givenValidParam_whenFindMealFoodByMealIdAndId_thenReturnsMealFoodObject() {
 
-        Portion portion = Portion.builder()
-                .portionName("1 g")
-                .portionSize(BigDecimal.ONE)
-                .food(food)
-                .build();
+        Long mealId = meal.getId();
+        Long mealFoodId = mealFood.getId();
 
-        List<Portion> portions = new ArrayList<>();
-        portions.add(portion);
-
-        food.setPortions(portions);
-        foodRepository.save(food);
-
-        User user = User.builder()
-                .username("testUser")
-                .password(passwordEncoder.encode("testPassword"))
-                .roles("ROLE_USER")
-                .build();
-        userRepository.save(user);
-
-        Meal meal = Meal.builder()
-                .mealName("Good meal")
-                .createdAt(new Date())
-                .updatedAt(new Date())
-                .user(user)
-                .build();
-
-        mealRepository.save(meal);
-
-        MealFood mealFood = MealFood.builder()
-                .food(food)
-                .meal(meal)
-                .quantity(BigDecimal.TEN)
-                .build();
-
-        mealFoodRepository.save(mealFood);
-
-        Optional<MealFood> foundMealFood = mealFoodRepository.findMealFoodByMealIdAndId(meal.getId(), mealFood.getId());
+        Optional<MealFood> foundMealFood = mealFoodRepository.findMealFoodByMealIdAndId(mealId, mealFoodId);
 
         assertThat(foundMealFood).isPresent();
         assertThat(foundMealFood.get()).isEqualTo(mealFood);

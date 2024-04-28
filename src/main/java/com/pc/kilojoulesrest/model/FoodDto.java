@@ -2,9 +2,7 @@ package com.pc.kilojoulesrest.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.pc.kilojoulesrest.entity.Food;
-import com.pc.kilojoulesrest.entity.Portion;
 import com.pc.kilojoulesrest.util.DecimalJsonSerializer;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -19,6 +17,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.pc.kilojoulesrest.constant.Constant.ONE_HUNDRED;
+
 /**
  * DTO for {@link Food}
  */
@@ -28,12 +28,12 @@ public class FoodDto implements Serializable {
     Long id;
 
     @Size(max = 255)
-    @NotBlank
+    @NotBlank(message = "Name cannot be empty.")
     String name;
 
     @NotNull
     @JsonSerialize(using = DecimalJsonSerializer.class)
-    BigDecimal quantity;
+    BigDecimal quantity = ONE_HUNDRED;
 
     @NotNull
     @JsonSerialize(using = DecimalJsonSerializer.class)

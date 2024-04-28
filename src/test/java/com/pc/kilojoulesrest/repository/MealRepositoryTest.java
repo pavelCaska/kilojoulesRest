@@ -3,6 +3,8 @@ package com.pc.kilojoulesrest.repository;
 import com.pc.kilojoulesrest.entity.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,24 +35,29 @@ class MealRepositoryTest {
     @Autowired
     private MealFoodRepository mealFoodRepository;
 
-    @Test
-    @DisplayName("JUnit test for save operation")
-    public void givenMealObject_whenSave_thenReturnSavedMeal() {
-        // given - precondition or setup
-        User user = User.builder()
+    private Meal meal;
+
+    @BeforeEach
+    void setUp() {
+        User user = userRepository.save(User.builder()
                 .username("testUser")
                 .password(passwordEncoder.encode("testPassword"))
                 .roles("ROLE_USER")
-                .build();
+                .build());
         userRepository.save(user);
 
-        Meal meal = Meal.builder()
+        meal = Meal.builder()
                 .mealName("Good meal")
                 .createdAt(new Date())
                 .updatedAt(new Date())
                 .user(user)
                 .build();
         mealRepository.save(meal);
+    }
+
+    @Test
+    @DisplayName("JUnit test for save operation")
+    void givenMealObject_whenSave_thenReturnSavedMeal() {
 
         Food food = Food.builder()
                 .name("Apple")
@@ -96,20 +103,8 @@ class MealRepositoryTest {
 
     @Test
     @DisplayName("JUnit test for findById operation")
-    public void givenMealObject_whenFindById_thenReturnMealObject() {
-        User user = User.builder()
-                .username("testUser")
-                .password(passwordEncoder.encode("testPassword"))
-                .roles("ROLE_USER")
-                .build();
-        userRepository.save(user);
+    void givenMealObject_whenFindById_thenReturnMealObject() {
 
-        Meal meal = Meal.builder()
-                .mealName("Good meal")
-                .createdAt(new Date())
-                .updatedAt(new Date())
-                .user(user)
-                .build();
         Meal savedMeal = mealRepository.save(meal);
 
         Optional<Meal> foundMeal = mealRepository.findById(savedMeal.getId());
@@ -121,21 +116,7 @@ class MealRepositoryTest {
 
     @Test
     @DisplayName("JUnit test for delete operation")
-    public void givenMealObject_whenDelete_thenRemoveMealObject() {
-        User user = User.builder()
-                .username("testUser")
-                .password(passwordEncoder.encode("testPassword"))
-                .roles("ROLE_USER")
-                .build();
-        userRepository.save(user);
-
-        Meal meal = Meal.builder()
-                .mealName("Good meal")
-                .createdAt(new Date())
-                .updatedAt(new Date())
-                .user(user)
-                .build();
-        mealRepository.save(meal);
+    void givenMealObject_whenDelete_thenRemoveMealObject() {
 
         mealRepository.delete(meal);
 
@@ -144,7 +125,7 @@ class MealRepositoryTest {
 
     @Test
     @DisplayName("JUnit test for findAllByUser operation")
-    public void givenMultipleMeals_whenFindAllByUser_thenReturnCorrectMeals() {
+    void givenMultipleMeals_whenFindAllByUser_thenReturnCorrectMeals() {
         User user1 = User.builder()
                 .username("testUser1")
                 .password(passwordEncoder.encode("testPassword"))

@@ -1,6 +1,7 @@
 package com.pc.kilojoulesrest.controller;
 
 import com.pc.kilojoulesrest.entity.Food;
+import com.pc.kilojoulesrest.exception.RecordNotDeletableException;
 import com.pc.kilojoulesrest.exception.RecordNotFoundException;
 import com.pc.kilojoulesrest.model.ErrorDTO;
 import com.pc.kilojoulesrest.model.FoodCreateDto;
@@ -27,13 +28,13 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
-public class RestFoodController {
+public class FoodController {
 
     private final FoodService foodService;
-    private static final Logger log = LoggerFactory.getLogger(RestPortionController.class);
+    private static final Logger log = LoggerFactory.getLogger(PortionController.class);
 
     @Autowired
-    public RestFoodController(FoodService foodService) {
+    public FoodController(FoodService foodService) {
         this.foodService = foodService;
     }
 
@@ -72,7 +73,6 @@ public class RestFoodController {
         try {
             FoodDto dto = foodService.fetchFoodDtoById(id);
             return ResponseEntity.status(HttpStatus.OK).body(dto);
-//            return ResponseEntity.ok(dto);
         } catch (RecordNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDTO(e.getMessage()));
         } catch (DataAccessException e) {
@@ -123,7 +123,7 @@ public class RestFoodController {
 //            FoodDto deletedFoodDto = foodService.convertFoodToFoodDto(deletedFood);
 //            return ResponseEntity.ok(deletedFoodDto);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (RecordNotFoundException e) {
+        } catch (RecordNotFoundException | RecordNotDeletableException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDTO(e.getMessage()));
         } catch (DataAccessException e) {
             log.error("Database access error:", e);
@@ -149,20 +149,4 @@ public class RestFoodController {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(new ErrorDTO(e.getMessage()));
         }
     }
-//    @GetMapping("/food/search")
-//    public ResponseEntity<?> searchFood(@RequestParam(name = "query") String query) {
-//        try {
-//            List<Food> foods = foodService.searchFood(query);
-//            if (foods.isEmpty()) {
-//                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDTO("No records found."));
-//            }
-//            List<FoodDto> foodDtos = foods.stream()
-//                    .map(FoodDto::fromEntity)
-//                    .collect(Collectors.toList());
-//            return ResponseEntity.ok(foodDtos);
-//        } catch (DataAccessException e) {
-//            log.error("Database access error:", e);
-//            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(new ErrorDTO(e.getMessage()));
-//        }
-//    }
 }

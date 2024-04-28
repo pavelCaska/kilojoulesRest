@@ -6,9 +6,8 @@ import com.pc.kilojoulesrest.model.MealFormDTO;
 import com.pc.kilojoulesrest.repository.FoodRepository;
 import com.pc.kilojoulesrest.service.*;
 import jakarta.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
 
@@ -19,6 +18,7 @@ import java.util.List;
 
 import static com.pc.kilojoulesrest.constant.Constant.ONE_HUNDRED;
 
+@Profile("!test")
 @Component("bootstrapData")
 public class BootstrapData implements CommandLineRunner {
 
@@ -30,7 +30,7 @@ public class BootstrapData implements CommandLineRunner {
     private final MealService mealService;
 //    private final JournalService journalService;
 //    private final JournalMealService journalMealService;
-    private static final Logger log = LoggerFactory.getLogger(BootstrapData.class);
+//    private static final Logger log = LoggerFactory.getLogger(BootstrapData.class);
 
 
     public BootstrapData(UserService userService, FoodRepository foodRepository, FoodCsvService foodCsvService, FoodService foodService, PortionService portionService, MealService mealService) {
@@ -138,7 +138,7 @@ public class BootstrapData implements CommandLineRunner {
                     .portionSize(BigDecimal.valueOf(350))
                     .food(food1)
                     .build();
-        portionService.createPortion(food1, portion1);
+        portionService.addPortionToList(food1, portion1);
 
         Food food2 = foodService.getFoodById(2L); // Kitchin tunak
         Portion portion2 = Portion.builder()
@@ -146,7 +146,7 @@ public class BootstrapData implements CommandLineRunner {
                     .portionSize(BigDecimal.valueOf(150))
                     .food(food2)
                     .build();
-        portionService.createPortion(food2, portion2);
+        portionService.addPortionToList(food2, portion2);
 
         Food food7 = foodService.getFoodById(7L); // brambory
         Portion portion7 = Portion.builder()
@@ -154,7 +154,7 @@ public class BootstrapData implements CommandLineRunner {
                 .portionSize(BigDecimal.valueOf(250))
                 .food(food7)
                 .build();
-        portionService.createPortion(food7, portion7);
+        portionService.addPortionToList(food7, portion7);
 
         Food food9 = foodService.getFoodById(9L); // cibule
         Portion portion9 = Portion.builder()
@@ -162,21 +162,21 @@ public class BootstrapData implements CommandLineRunner {
                 .portionSize(BigDecimal.valueOf(50))
                 .food(food9)
                 .build();
-        portionService.createPortion(food9, portion9);
+        portionService.addPortionToList(food9, portion9);
 
         Portion portion10 = Portion.builder()
                 .portionName("střední kus 70 g")
                 .portionSize(BigDecimal.valueOf(70))
                 .food(food9)
                 .build();
-        portionService.createPortion(food9, portion10);
+        portionService.addPortionToList(food9, portion10);
 
         Portion portion11 = Portion.builder()
                 .portionName("velký kus 100 g")
                 .portionSize(BigDecimal.valueOf(100))
                 .food(food9)
                 .build();
-        portionService.createPortion(food9, portion11);
+        portionService.addPortionToList(food9, portion11);
 
         Food food12 = foodService.getFoodById(12L); // michana vejce
         Portion portion12 = Portion.builder()
@@ -184,7 +184,7 @@ public class BootstrapData implements CommandLineRunner {
                 .portionSize(BigDecimal.valueOf(50))
                 .food(food12)
                 .build();
-        portionService.createPortion(food12, portion12);
+        portionService.addPortionToList(food12, portion12);
     }
     private void populateIndividualMeals() {
 
