@@ -7,14 +7,13 @@ import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.Value;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
  * DTO for {@link Food}
  */
 @Value
-public class FoodCreateDto implements Serializable {
+public class FoodCreateDto {
     @Size(max = 255)
     @NotBlank(message = "Name cannot be empty.")
     String name;

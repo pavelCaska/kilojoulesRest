@@ -52,10 +52,10 @@ public class JwtService {
     }
 
     public Boolean validateToken(String token, UserDetails userDetails) {
+        if(isTokenExpired(token)) return false;
         final String username = extractUsername(token);
 
-        return (username.equals(userDetails.getUsername())
-                && !isTokenExpired(token));
+        return (username.equals(userDetails.getUsername()));
     }
 
     public String generateToken(String userName) {
@@ -78,5 +78,4 @@ public class JwtService {
         byte[] keyBytes = Decoders.BASE64.decode(SECRET);
         return Keys.hmacShaKeyFor(keyBytes);
     }
-
 }

@@ -1,18 +1,13 @@
 package com.pc.kilojoulesrest.controller;
 
 import com.pc.kilojoulesrest.entity.Food;
-import com.pc.kilojoulesrest.exception.RecordNotDeletableException;
-import com.pc.kilojoulesrest.exception.RecordNotFoundException;
 import com.pc.kilojoulesrest.model.ErrorDTO;
 import com.pc.kilojoulesrest.model.FoodCreateDto;
 import com.pc.kilojoulesrest.model.FoodDto;
 import com.pc.kilojoulesrest.model.FoodPagedDto;
 import com.pc.kilojoulesrest.service.FoodService;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -31,7 +26,6 @@ import java.util.stream.Collectors;
 public class FoodController {
 
     private final FoodService foodService;
-    private static final Logger log = LoggerFactory.getLogger(PortionController.class);
 
     @Autowired
     public FoodController(FoodService foodService) {
@@ -70,15 +64,8 @@ public class FoodController {
 
     @GetMapping("/food/{id}")
     public ResponseEntity<?> getFoodById(@PathVariable Long id) {
-        try {
             FoodDto dto = foodService.fetchFoodDtoById(id);
             return ResponseEntity.status(HttpStatus.OK).body(dto);
-        } catch (RecordNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDTO(e.getMessage()));
-        } catch (DataAccessException e) {
-            log.error("Database access error:", e);
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(new ErrorDTO(e.getMessage()));
-        }
     }
     @PostMapping("/food")
     public ResponseEntity<?> createFood(@Valid @RequestBody FoodCreateDto dto, BindingResult bindingResult) {
@@ -104,37 +91,20 @@ public class FoodController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(foodService.buildErrorResponseForFood(bindingResult));
         }
-        try {
             Food updatedFood = foodService.updateFood(foodDto);
             FoodDto updatedFoodDto = foodService.convertFoodToFoodDto(updatedFood);
             return ResponseEntity.ok(updatedFoodDto);
-        } catch (RecordNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDTO(e.getMessage()));
-        } catch (DataAccessException e) {
-            log.error("Database access error:", e);
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(new ErrorDTO(e.getMessage()));
-        }
     }
 
     @DeleteMapping("/food/{id}")
     public ResponseEntity<?> deleteFoodById(@PathVariable Long id) {
-        try {
             Food deletedFood = foodService.deleteFoodById(id);
-//            FoodDto deletedFoodDto = foodService.convertFoodToFoodDto(deletedFood);
-//            return ResponseEntity.ok(deletedFoodDto);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (RecordNotFoundException | RecordNotDeletableException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDTO(e.getMessage()));
-        } catch (DataAccessException e) {
-            log.error("Database access error:", e);
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(new ErrorDTO(e.getMessage()));
-        }
     }
 
     @GetMapping("/food/search")
     public ResponseEntity<?> searchFood(@RequestParam(name = "query") String query,
                                         @PageableDefault(size = 25) Pageable pageable) {
-        try {
             Page<Food> foods = foodService.searchFood(query, pageable);
             if (foods.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDTO("No records found."));
@@ -144,9 +114,5 @@ public class FoodController {
                     .collect(Collectors.toList());
             Page<FoodDto> dtoPage = new PageImpl<>(foodDtos, pageable, foods.getTotalElements());
             return ResponseEntity.ok(dtoPage);
-        } catch (DataAccessException e) {
-            log.error("Database access error:", e);
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(new ErrorDTO(e.getMessage()));
-        }
     }
 }
