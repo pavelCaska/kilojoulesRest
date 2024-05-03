@@ -10,7 +10,6 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,7 +23,7 @@ import static com.pc.kilojoulesrest.constant.Constant.ONE_HUNDRED;
  */
 @Data
 @RequiredArgsConstructor
-public class FoodDto implements Serializable {
+public class FoodDto {
     Long id;
 
     @Size(max = 255)

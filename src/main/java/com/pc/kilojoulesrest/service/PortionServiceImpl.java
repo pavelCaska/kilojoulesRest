@@ -43,6 +43,7 @@ public class PortionServiceImpl implements PortionService {
         return portionRepository.findById(portionId);
     }
 
+//    This method is used only for Bootstrap
     @Override
     public Portion addPortionToList(Food food, Portion portion) throws RecordNameExistsException {
         List<Portion> portionList = food.getPortions();
