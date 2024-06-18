@@ -6,6 +6,7 @@ import com.pc.kilojoulesrest.service.JwtService;
 import com.pc.kilojoulesrest.service.UserInfoUserDetailsService;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
@@ -38,7 +39,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain)
-            throws IOException {
+            throws ServletException, IOException {
         try {
 
             String authHeader = request.getHeader("Authorization");
@@ -67,11 +68,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         } catch (ExpiredJwtException e) {
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
             ErrorDTO error = new ErrorDTO("Your session has expired. Please log in again.");
-            response.setContentType("application/json");
-            response.getWriter().write(new ObjectMapper().writeValueAsString(error));
-        } catch (Exception e) {
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            ErrorDTO error = new ErrorDTO("Authentication failed");
             response.setContentType("application/json");
             response.getWriter().write(new ObjectMapper().writeValueAsString(error));
         }
