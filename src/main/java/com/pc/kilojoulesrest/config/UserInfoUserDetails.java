@@ -10,14 +10,16 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class UserInfoUserDetails implements UserDetails {
+public class UserInfoUserDetails implements ExtendedUserDetails {
 
     private static final long serialVersionUID = -8773921465190832995L;
+    private Long userId;
     private String name;
     private String password;
     private List<GrantedAuthority> authorities;
 
     public UserInfoUserDetails(User user) {
+        userId = user.getId();
         name = user.getUsername();
         password = user.getPassword();
         authorities = Arrays.stream(user.getRoles().split(","))
@@ -38,6 +40,10 @@ public class UserInfoUserDetails implements UserDetails {
     @Override
     public String getUsername() {
         return name;
+    }
+
+    public Long getUserId() {
+        return userId;
     }
 
     @Override

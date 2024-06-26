@@ -2,6 +2,7 @@ package com.pc.kilojoulesrest.model;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,10 +11,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LoginRequestDTO {
-    @NotBlank(message = "Username is empty or missing.")
+//    @NotBlank(message = "Username is empty or missing.")
+    @Size(min = 6, message = "Username must be at least 6 characters long.")
     private String username;
 
-    //    @NotBlank(message = "Password is empty or missing.")
     @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d).{6,}$", message = "Password must consists of a minimum of 6 letters and/or digits.")
     private String password;
 }

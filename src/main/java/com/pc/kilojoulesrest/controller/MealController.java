@@ -3,15 +3,15 @@ package com.pc.kilojoulesrest.controller;
 import com.pc.kilojoulesrest.entity.Meal;
 import com.pc.kilojoulesrest.entity.MealFood;
 import com.pc.kilojoulesrest.entity.User;
-import com.pc.kilojoulesrest.model.ErrorDTO;
-import com.pc.kilojoulesrest.model.MealDTO;
-import com.pc.kilojoulesrest.model.MealFormDTO;
-import com.pc.kilojoulesrest.model.MealPagedDto;
+import com.pc.kilojoulesrest.model.*;
 import com.pc.kilojoulesrest.service.MealFoodService;
 import com.pc.kilojoulesrest.service.MealService;
 import com.pc.kilojoulesrest.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +21,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -97,11 +98,15 @@ public class MealController {
                                            @Valid @RequestBody MealFormDTO mealFormDTO, BindingResult bindingResult,
                                            @RequestParam List<Long> foods,
                                            @AuthenticationPrincipal UserDetails userDetails) {
+        User user = userService.fetchUserByUsername(userDetails.getUsername());
+        if (!mealService.existsMealByIdAndUser(id, user)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorDTO("The meal doesn't belong to the current user."));
+        }
+
         if (bindingResult.hasErrors()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(mealService.buildErrorResponseForMeal(bindingResult));
         }
-            User user = userService.fetchUserByUsername(userDetails.getUsername());
             Meal meal = mealService.addFoodToMeal(user, id, mealFormDTO, foods);
             MealDTO mealDTO = mealService.calculateAndReturnMealDto(meal);
             return ResponseEntity.ok(mealDTO);
@@ -111,7 +116,11 @@ public class MealController {
     public ResponseEntity<?> updateMealName(@PathVariable Long id,
                                             @RequestParam String mealName,
                                             @AuthenticationPrincipal UserDetails userDetails) {
-            User user = userService.fetchUserByUsername(userDetails.getUsername());
+        User user = userService.fetchUserByUsername(userDetails.getUsername());
+        if (!mealService.existsMealByIdAndUser(id, user)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorDTO("The meal doesn't belong to the current user."));
+        }
+
             Meal meal = mealService.updateMealName(id, mealName, user);
             MealDTO mealDTO = mealService.calculateAndReturnMealDto(meal);
             return ResponseEntity.ok(mealDTO);
@@ -120,19 +129,21 @@ public class MealController {
     @DeleteMapping("/meal/{id}")
     public ResponseEntity<?> deleteMealById(@PathVariable Long id,
                                             @AuthenticationPrincipal UserDetails userDetails) {
-            User user = userService.fetchUserByUsername(userDetails.getUsername());
-            Meal deletedMeal = mealService.deleteMealById(id, user);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        User user = userService.fetchUserByUsername(userDetails.getUsername());
+        Meal deletedMeal = mealService.deleteMealById(id, user);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping("/meal/{mealId}/food/{mealFoodId}")
     public ResponseEntity<?> deleteMealFoodById(@PathVariable Long mealId,
                                                 @PathVariable Long mealFoodId,
                                                 @AuthenticationPrincipal UserDetails userDetails) {
+
+        User user = userService.fetchUserByUsername(userDetails.getUsername());
+
         if(!mealFoodService.existsMealFoodByMealIdAndId(mealId, mealFoodId)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDTO("Food record with id " + mealFoodId + " is not associated with Meal record with id " + mealId));
         }
-            User user = userService.fetchUserByUsername(userDetails.getUsername());
             MealFood deletedMf = mealFoodService.deleteMealFoodById(mealFoodId, user);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -142,6 +153,12 @@ public class MealController {
                                             @PathVariable Long mealFoodId,
                                             @Valid @RequestBody MealFormDTO mealFormDTO, BindingResult bindingResult,
                                             @AuthenticationPrincipal UserDetails userDetails) {
+
+        User user = userService.fetchUserByUsername(userDetails.getUsername());
+        if (!mealService.existsMealByIdAndUser(mealId, user)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorDTO("The meal doesn't belong to the current user."));
+        }
+
         if (!mealFoodService.existsMealFoodByMealIdAndId(mealId, mealFoodId)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDTO("Food record with id " + mealFoodId + " is not associated with Meal record with id " + mealId));
         }
@@ -149,9 +166,25 @@ public class MealController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(mealService.buildErrorResponseForMeal(bindingResult));
         }
-            User user = userService.fetchUserByUsername(userDetails.getUsername());
             MealFood updatedMealFood = mealFoodService.updateMealFood(mealFoodId, mealFormDTO, user);
             MealDTO mealDTO = mealService.calculateAndReturnMealDto(updatedMealFood.getMeal());
             return ResponseEntity.ok(mealDTO);
     }
+
+    @GetMapping("/meal/search")
+    public ResponseEntity<?> searchMeal(@RequestParam(name = "query") String query,
+                                        @AuthenticationPrincipal UserDetails userDetails,
+                                        @PageableDefault(size = 25) Pageable pageable) {
+        User user = userService.fetchUserByUsername(userDetails.getUsername());
+        Page<Meal> meals = mealService.searchMeal(user, query, pageable);
+        if (meals.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDTO("No records found."));
+        }
+        List<MealDTO> mealDtos = meals.getContent().stream()
+                .map(MealDTO::fromEntity)
+                .collect(Collectors.toList());
+        Page<MealDTO> dtoPage = new PageImpl<>(mealDtos, pageable, meals.getTotalElements());
+        return ResponseEntity.ok(dtoPage);
+    }
+
 }

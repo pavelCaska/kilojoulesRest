@@ -10,5 +10,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 public interface MealRepository extends JpaRepository<Meal, Long>, PagingAndSortingRepository<Meal, Long> {
 
     Page<Meal> findAllByUser(User user, Pageable pageable);
+    Page<Meal> findAllByUserAndMealNameContainsIgnoreCase(User user, String name, Pageable pageable);
+    boolean existsMealByIdAndUser(Long id, User user);
 
 }

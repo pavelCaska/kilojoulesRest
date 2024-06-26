@@ -151,6 +151,9 @@ public class FoodServiceImpl implements FoodService {
 
     @Override
     public Page<Food> searchFood(String query, Pageable pageable) {
+//        if (query == null || query.length() < 3) {
+//            throw new IllegalArgumentException("Query must contain at least 3 characters!");
+//        }
         return foodRepository.findAllByNameContainsIgnoreCase(query, pageable);
     }
 }

@@ -39,7 +39,7 @@ public class UserControllerITests {
     @BeforeEach
     public void setUp() {
         User user = User.builder()
-                .username("user")
+                .username("testUser")
                 .password(userService.encodePassword("user1pwd"))
                 .roles("ROLE_USER")
                 .build();
@@ -51,7 +51,7 @@ public class UserControllerITests {
     @DisplayName("Integration test for user login with valid input")
     public void givenValidUserData_whenLogin_thenReturnsJwtToken() throws Exception {
 
-        LoginRequestDTO loginRequestDTO = new LoginRequestDTO("user", "user1pwd");
+        LoginRequestDTO loginRequestDTO = new LoginRequestDTO("testUser", "user1pwd");
 
         ResultActions response = mockMvc.perform(post("/api/login")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -77,7 +77,7 @@ public class UserControllerITests {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.password").exists())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.password").value("Password must consists of a minimum of 6 letters and/or digits."))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.username").exists())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.username").value("Username is empty or missing."));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.username").value("Username must be at least 6 characters long."));
     }
 
     @Test
@@ -102,7 +102,7 @@ public class UserControllerITests {
     @DisplayName("Integration test negative case for helper method isRunning")
     public void givenAuthenticatedUser_whenIsRunning_thenStringInBody() throws Exception {
 
-        String token = jwtService.generateToken("user");
+        String token = jwtService.generateToken("testUser");
         ResultActions response = mockMvc.perform(get("/api/isRunning")
                         .header("Authorization", "Bearer " + token));
 

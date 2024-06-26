@@ -81,4 +81,13 @@ public class JournalMeal implements JournalEntry {
     @OneToMany(mappedBy = "journalMeal", cascade = CascadeType.ALL)
     private Set<JournalMealFood> journalMealFoods;
 
+    @Override
+    public Long getJournalFoodId() {
+        return null;
+    }
+
+    @Override
+    public Long getJournalMealId() {
+        return id;
+    }
 }

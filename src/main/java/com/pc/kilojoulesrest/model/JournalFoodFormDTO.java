@@ -3,6 +3,7 @@ package com.pc.kilojoulesrest.model;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,8 +18,8 @@ import java.time.LocalDate;
 public class JournalFoodFormDTO {
 
     @NotNull(message = "Consumption date cannot be null")
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    private LocalDate date;
+    @Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2}$", message = "Date must be in the format yyyy-MM-dd")
+    private String consumedAt;
 
     @NotBlank
     private String mealType;

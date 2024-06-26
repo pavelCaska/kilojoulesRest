@@ -39,10 +39,17 @@ public class DefaultSecurityConfig {
         MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector);
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.authorizeHttpRequests((requests) -> requests
+                        .requestMatchers(mvcMatcherBuilder.pattern("/api/register")).permitAll()
                         .requestMatchers(mvcMatcherBuilder.pattern("/api/login")).permitAll()
                         .requestMatchers(mvcMatcherBuilder.pattern("/api/isRunning")).hasRole("ADMIN")
-                        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,"/food/{foodId}/portion")).hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST,"/food/{foodId}/portion")).hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,"/api/user/profile")).hasRole("USER")
+                        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST,"/api/user/profile")).hasAnyRole("USER","ADMIN")
+                        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.PUT,"/api/user/profile")).hasRole("USER")
+                        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,"/api/user/profile/{id}")).hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.PUT,"/api/user/profile/{id}")).hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(mvcMatcherBuilder.pattern("/api/user/{userId}")).hasRole("ADMIN")
+//                        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,"/food/{foodId}/portion")).hasAnyRole("USER", "ADMIN")
+//                        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST,"/food/{foodId}/portion")).hasAnyRole("USER", "ADMIN")
                         .requestMatchers(mvcMatcherBuilder.pattern("/error")).permitAll() // Shouldn't be used with respect for frontend!
                         .anyRequest().authenticated())
                 .csrf((csrf) -> csrf.disable());

@@ -99,10 +99,10 @@ public class MealServiceImpl implements MealService {
 
     @Override
     public Meal addFoodToMeal(User user, Long id, MealFormDTO mealFormDTO, List<Long> foods) {
-        Meal meal = getMealById(id);
-        if(!user.getId().equals(meal.getUser().getId())) {
-            throw new IllegalArgumentException("User does not have permission to modify this meal!");
-        }
+        Meal meal = getMealByIdAndUser(id, user);
+//        if(!user.getId().equals(meal.getUser().getId())) {
+//            throw new IllegalArgumentException("User does not have permission to modify this meal!");
+//        }
         if(foods == null || foods.isEmpty()) {
             throw new IllegalArgumentException("Must provide at least one food!");
         }
@@ -136,8 +136,8 @@ public class MealServiceImpl implements MealService {
     @Override
     public MealDTO calculateAndReturnMealDto(Meal meal) {
         MealDTO mealDTO = new MealDTO();
-        mealDTO.setMealName(meal.getMealName());
         mealDTO.setMealId(meal.getId());
+        mealDTO.setMealName(meal.getMealName());
 
         List<MealFoodDTO> mealFoodsDTO = this.calculateAndReturnAdjustedMealFoods(meal);
         mealDTO.setFoods(mealFoodsDTO);
@@ -197,5 +197,18 @@ public class MealServiceImpl implements MealService {
             errors.put(fieldError.getField(), fieldError.getDefaultMessage());
         }
         return errors;
+    }
+
+    @Override
+    public Page<Meal> searchMeal(User user, String query, Pageable pageable) {
+//        if (query == null || query.length() < 3) {
+//            throw new IllegalArgumentException("Query must contain at least 3 characters!");
+//        }
+        return mealRepository.findAllByUserAndMealNameContainsIgnoreCase(user, query, pageable);
+    }
+
+    @Override
+    public boolean existsMealByIdAndUser(Long mealId, User user) {
+        return mealRepository.existsMealByIdAndUser(mealId, user);
     }
 }

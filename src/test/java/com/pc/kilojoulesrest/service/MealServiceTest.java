@@ -444,7 +444,7 @@ class MealServiceTest {
 //        .isInstanceOf(IllegalArgumentException.class)
 //        .hasMessage("User does not have permission to modify this meal!");
 
-        assertThat(exception.getMessage()).isEqualTo("User does not have permission to modify this meal!");
+        assertThat(exception.getMessage()).isEqualTo("Meal record with 1 doesn't belong to user unauthorizedUser.");
         verify(mealRepository, times(1)).findById(mealId);
         verify(mealRepository, times(0)).save(any(Meal.class));
     }

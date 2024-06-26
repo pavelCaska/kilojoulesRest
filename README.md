@@ -19,14 +19,17 @@ This application is designed to be a RESTful API for tracking nutrition intake a
 - Create, delete portions
 - Create, update, delete, list meals
 - Pagination for food list, meal list
-- Unit tests for repository and service layer
-- Integration tests for controller layer 
-- Entities, models for Journal
+- Food, Portion, Meal
+  - Unit tests for repository and service layer
+  - Integration tests for controller layer 
+- Journal
+  - add, update, delete food or meal to/from Journal
+  - basic & advanced statistics
+- User management
+  - UserProfile - create, update, read
+  - User - register, delete
 
 ## Next Steps:
 
-- Create rest controllers (journal and statistics)
-- Adjust related models and services
 - Unit tests for repository, service & control layer (journal-related entities)
-- Integration testing
-- User management
+- Integration testing for Journal

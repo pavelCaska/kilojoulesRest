@@ -10,8 +10,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FoodPagedDto {
-    private List<FoodDto> foodDtoList;
     private int pageNumber;
     private int totalPages;
+    private List<FoodDto> foodDtoList;
 
 }

@@ -359,8 +359,8 @@ public class MealControllerITests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(mealFormDTO)));
 
-        response.andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error").value("Meal record with id " + mealId + " does not exist!"));
+        response.andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.error").value("The meal doesn't belong to the current user."));
     }
 
     @Test
@@ -465,7 +465,7 @@ public class MealControllerITests {
         Long mealId = meal.getId() + 1;
         Long mealFoodId = meal.getMealFoods().stream().map(MealFood::getId).findFirst().orElse(null);
 
-        ResultActions response = mockMvc.perform(delete("/api/meal/{mealId}/food/{foodId}", mealId, mealFoodId)
+        ResultActions response = mockMvc.perform(delete("/api/meal/{mealId}/food/{mealFoodId}", mealId, mealFoodId)
                         .header("Authorization", authorizedUser)
                         .contentType(MediaType.APPLICATION_JSON));
 

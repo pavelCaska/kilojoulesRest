@@ -87,4 +87,13 @@ public class JournalFood implements JournalEntry, JournalFoodItem {
     @OneToMany(mappedBy="journalFood", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<JournalFoodPortion> portions;
 
+    @Override
+    public Long getJournalFoodId() {
+        return id;
+    }
+
+    @Override
+    public Long getJournalMealId() {
+        return null;
+    }
 }

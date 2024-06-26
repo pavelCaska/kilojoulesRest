@@ -1,5 +1,6 @@
 package com.pc.kilojoulesrest.model;
 
+import com.pc.kilojoulesrest.entity.JournalFoodPortion;
 import com.pc.kilojoulesrest.entity.Portion;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -32,4 +33,20 @@ public class PortionResponseDTO {
 
         return dto;
     }
+
+    public static PortionResponseDTO fromEntity(JournalFoodPortion jfp) {
+        if (jfp == null) {
+            return null;
+        }
+
+        PortionResponseDTO dto = new PortionResponseDTO();
+        dto.setId(jfp.getId());
+        dto.setFoodId(jfp.getJournalFood().getId());
+        dto.setPortionName(jfp.getPortionName());
+        dto.setPortionSize(jfp.getPortionSize());
+
+        return dto;
+    }
+
+
 }

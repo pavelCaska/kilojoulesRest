@@ -91,9 +91,7 @@ public class FoodDto {
     private List<PortionResponseDTO> portions = new ArrayList<>();
 
     public static FoodDto fromEntity(Food food) {
-        if (food == null) {
-            return null;
-        }
+        if (food == null) return null;
 
         FoodDto foodDto = new FoodDto();
         foodDto.setId(food.getId());
@@ -113,9 +111,7 @@ public class FoodDto {
         foodDto.setPhe(food.getPhe());
         foodDto.setCreatedAt(food.getCreatedAt());
         foodDto.setUpdatedAt(food.getUpdatedAt());
-
-        List<PortionResponseDTO> portionDtos = food.getPortions().stream().map(PortionResponseDTO::fromEntity).collect(Collectors.toList());
-        foodDto.setPortions(portionDtos);
+        foodDto.setPortions(food.getPortions().stream().map(PortionResponseDTO::fromEntity).collect(Collectors.toList()));
 
         return foodDto;
     }

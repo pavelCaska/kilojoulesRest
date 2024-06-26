@@ -6,6 +6,7 @@ import com.pc.kilojoulesrest.model.MealDTO;
 import com.pc.kilojoulesrest.model.MealFoodDTO;
 import com.pc.kilojoulesrest.model.MealFormDTO;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.validation.BindingResult;
 
 import java.util.List;
@@ -37,4 +38,8 @@ public interface MealService {
     Meal deleteMealById(Long id, User user);
 
     Map buildErrorResponseForMeal(BindingResult bindingResult);
+
+    Page<Meal> searchMeal(User user, String query, Pageable pageable);
+
+    boolean existsMealByIdAndUser(Long mealId, User user);
 }

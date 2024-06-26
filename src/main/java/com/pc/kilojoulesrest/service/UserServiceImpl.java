@@ -47,5 +47,24 @@ public class UserServiceImpl implements UserService {
         return errors;
     }
 
+    @Override
+    public User registerNewUser(String username, String password) {
+        User newUser = User.builder()
+                .username(username)
+                .password(passwordEncoder.encode(password))
+                .build();
+        return userRepository.save(newUser);
 
+    }
+
+    @Override
+    public boolean existsUserByUsername(String username) {
+        return userRepository.existsUserByUsername(username);
+    }
+
+    @Override
+    public void deleteUser(Long userId) {
+        User user = userRepository.findUserById(userId).orElseThrow(()->new RecordNotFoundException("User not found."));
+        userRepository.delete(user);
+    }
 }

@@ -14,4 +14,10 @@ public interface UserService {
     User fetchUserByUsername(String username);
 
     Map<String, String> buildErrorResponseForLogin(BindingResult bindingResult);
+
+    User registerNewUser(String username, String password);
+
+    boolean existsUserByUsername(String username);
+
+    void deleteUser(Long userId);
 }
